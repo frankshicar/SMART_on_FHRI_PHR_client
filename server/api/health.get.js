@@ -1,5 +1,5 @@
 import { defineEventHandler } from 'h3';
-import { getDbPool } from '../../utils/db.js';
+import { getDbPool } from '../utils/db.js';
 
 export default defineEventHandler(async () => {
   let db = 'ok';
