@@ -1,21 +1,7 @@
-import { defineNuxtRouteMiddleware } from '#app'
+import { defineNuxtRouteMiddleware, navigateTo } from '#app';
 
-export default defineNuxtRouteMiddleware((to, from, next) => {
+export default defineNuxtRouteMiddleware((to) => {
   if (to.path === '/') {
-    console.log('123')
-    return navigateTo('/login')
+    return navigateTo('/login');
   }
-  // console.log(to)
-  // next()
-  
-})
-
-// import { defineNuxtRouteMiddleware } from '#app'
-
-// export default defineNuxtRouteMiddleware((to) => {
-//   // 處理根路徑
-//   if (to.path === '/') {
-//     console.log('Redirecting from root to login page')
-//     return navigateTo('/login')
-//   }
-// })
+});

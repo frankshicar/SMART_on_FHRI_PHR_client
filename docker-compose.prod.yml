@@ -1,0 +1,80 @@
+# 生产环境：App + MySQL + Caddy（HTTPS）
+# 用法见 docs/DEPLOY.md
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: smart-phr-mysql-prod
+    restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-FHIR_Appointment_Medicine}
+    volumes:
+      - smart_phr_mysql_prod:/var/lib/mysql
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - internal
+
+  app:
+    image: ${APP_IMAGE:-ghcr.io/frankshicar/smart_on_fhri_phr_client:latest}
+    build: .
+    container_name: smart-phr-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      APP_URL: ${APP_URL:?APP_URL is required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      FHIR_SERVER_URL: ${FHIR_SERVER_URL:-https://hapi.fhir.org/baseR4}
+      DEMO_FHIR_PATIENT_ID: ${DEMO_FHIR_PATIENT_ID:-3935}
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-FHIR_Appointment_Medicine}
+    expose:
+      - '3000'
+    networks:
+      - internal
+      - web
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: smart-phr-caddy
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN:-}
+      CADDY_EMAIL: ${CADDY_EMAIL:-}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - web
+
+networks:
+  internal:
+  web:
+
+volumes:
+  smart_phr_mysql_prod:
+  caddy_data:
+  caddy_config:

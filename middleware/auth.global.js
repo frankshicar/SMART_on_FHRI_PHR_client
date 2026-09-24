@@ -1,51 +1,14 @@
-import { useCookie, defineNuxtRouteMiddleware, navigateTo } from 'nuxt/app'
+import { defineNuxtRouteMiddleware, navigateTo, useCookie } from '#app';
 
-export default defineNuxtRouteMiddleware(async (to) => {
-  if (process.client) {
-    const token = useCookie('token').value
+export default defineNuxtRouteMiddleware((to) => {
+  const token = useCookie('token');
+  const isLoginPage = to.path === '/login';
 
-    if (!token && to.path !== '/login') {
-      console.log("Token: ", token)
-      console.log('Dont have token')
-      return navigateTo('/login')
-    } else {
-      console.log("Have token:", token)
-    }
+  if (!token.value && !isLoginPage) {
+    return navigateTo('/login');
   }
-})
 
-// import { useCookie, defineNuxtRouteMiddleware, navigateTo } from 'nuxt/app'
-
-// export default defineNuxtRouteMiddleware((to) => {
-//   if (process.client) {
-//     nextTick(() => {
-//       const token = useCookie('token', {
-//         default: () => null,
-//       })
-
-//       if (!token.value && to.path !== '/login') {
-//         console.log("Token: ", token.value)
-//         console.log('Dont have token')
-//         return navigateTo('/login')
-//       } else {
-//         console.log("Have token:", token.value)
-//       }
-//     })
-//   }
-// })
-
-
-
-// import { defineNuxtRouteMiddleware } from '#app'
-// import { useCookie } from 'nuxt/app'
-
-// export default defineNuxtRouteMiddleware((to, from) => {
-//   const token = useCookie('token')
-
-//   if (!token.value && to.path !== '/login') {
-//     console.log("Don't have token")
-//     return navigateTo('/login')
-//   } else {
-//     console.log("Have token:", token.value)
-//   }
-// })
+  if (token.value && isLoginPage) {
+    return navigateTo('/appointment');
+  }
+});

@@ -1,0 +1,12 @@
+# 反向代理：对外 80/443 → app:3000
+#
+# 有域名（推荐，自动 HTTPS）：
+#   APP_DOMAIN=phr.example.com
+#   CADDY_EMAIL=you@example.com
+#
+# 仅 IP 测试（无 HTTPS）：
+#   APP_DOMAIN=:80
+
+{$APP_DOMAIN::80} {
+	reverse_proxy app:3000
+}
