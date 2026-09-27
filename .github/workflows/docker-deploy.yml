@@ -43,6 +43,99 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+  deploy-cloud-run:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && vars.ENABLE_GCP_DEPLOY == 'true'
+    permissions:
+      contents: read
+      packages: read
+    env:
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ vars.GCP_REGION }}
+      GCP_SERVICE: ${{ vars.GCP_SERVICE }}
+      GCP_SQL_INSTANCE: ${{ vars.GCP_SQL_INSTANCE }}
+      GCP_MYSQL_USER: ${{ vars.GCP_MYSQL_USER }}
+      GCP_MYSQL_DATABASE: ${{ vars.GCP_MYSQL_DATABASE }}
+      GAR_IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/smart-phr/app
+      GHCR_IMAGE: ghcr.io/${{ github.repository }}:latest
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Ensure Artifact Registry repository
+        run: |
+          gcloud artifacts repositories describe smart-phr \
+            --location="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID" 2>/dev/null \
+          || gcloud artifacts repositories create smart-phr \
+            --repository-format=docker \
+            --location="$GCP_REGION" \
+            --project="$GCP_PROJECT_ID"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
+
+      - name: Mirror image to Artifact Registry
+        run: |
+          docker pull "$GHCR_IMAGE"
+          docker tag "$GHCR_IMAGE" "$GAR_IMAGE:${{ github.sha }}"
+          docker tag "$GHCR_IMAGE" "$GAR_IMAGE:latest"
+          docker push "$GAR_IMAGE:${{ github.sha }}"
+          docker push "$GAR_IMAGE:latest"
+
+      - name: Deploy to Cloud Run
+        run: |
+          ENV_VARS="^|^NODE_ENV=production"
+          ENV_VARS="${ENV_VARS}|JWT_SECRET=${{ secrets.GCP_JWT_SECRET }}"
+          ENV_VARS="${ENV_VARS}|MYSQL_SOCKET_PATH=/cloudsql/${GCP_SQL_INSTANCE}"
+          ENV_VARS="${ENV_VARS}|MYSQL_USER=${GCP_MYSQL_USER}"
+          ENV_VARS="${ENV_VARS}|MYSQL_PASSWORD=${{ secrets.GCP_MYSQL_PASSWORD }}"
+          ENV_VARS="${ENV_VARS}|MYSQL_DATABASE=${GCP_MYSQL_DATABASE}"
+          ENV_VARS="${ENV_VARS}|DEMO_FHIR_PATIENT_ID=3935"
+          ENV_VARS="${ENV_VARS}|FHIR_SERVER_URL=https://hapi.fhir.org/baseR4"
+          if [ -n "${{ secrets.GOOGLE_CLIENT_ID }}" ]; then
+            ENV_VARS="${ENV_VARS}|GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
+          fi
+          if [ -n "${{ secrets.GOOGLE_CLIENT_SECRET }}" ]; then
+            ENV_VARS="${ENV_VARS}|GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
+          fi
+          gcloud run deploy "$GCP_SERVICE" \
+            --image "$GAR_IMAGE:${{ github.sha }}" \
+            --region "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 3000 \
+            --memory 512Mi \
+            --cpu 1 \
+            --timeout 300 \
+            --cpu-boost \
+            --add-cloudsql-instances "$GCP_SQL_INSTANCE" \
+            --set-env-vars "$ENV_VARS"
+
+      - name: Set APP_URL to service URL
+        run: |
+          URL="$(gcloud run services describe "$GCP_SERVICE" \
+            --region "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" \
+            --format='value(status.url)')"
+          gcloud run services update "$GCP_SERVICE" \
+            --region "$GCP_REGION" \
+            --project "$GCP_PROJECT_ID" \
+            --update-env-vars "APP_URL=${URL}"
+
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest

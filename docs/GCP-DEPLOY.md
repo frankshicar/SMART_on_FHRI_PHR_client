@@ -168,12 +168,14 @@ Demo：`demo` / `demo1234`
 
 | 步骤 | 谁做 |
 |------|------|
-| push → build → Docker 镜像 | GitHub Actions（已有） |
-| 镜像存 GHCR | GitHub Actions（已有） |
-| Cloud Run 拉镜像 + 启动 | 你手动 `gcloud run deploy`（首次） |
-| 更新版本 | 再 push → Actions 打新镜像 → 再 `gcloud run deploy` |
+| push → build → Docker 镜像 | GitHub Actions |
+| 镜像存 GHCR | GitHub Actions |
+| 镜像同步到 Artifact Registry | GitHub Actions（`ENABLE_GCP_DEPLOY=true` 时） |
+| Cloud Run 部署 + 绑定 Cloud SQL | GitHub Actions 自动 `gcloud run deploy` |
 
-以后可加 GitHub Actions job 自动 `gcloud run deploy`（CD 到 GCP）。
+设置方式见 [CI-CD.md](./CI-CD.md) 的「如何启用自动部署到 Cloud Run」。
+
+**首次**若 Cloud Run 还不存在，可先跑 Cloud Shell 脚本，或直接设好 GitHub Secrets/Variables 后 push 到 main，Actions 会创建/更新服务。
 
 ---
 
