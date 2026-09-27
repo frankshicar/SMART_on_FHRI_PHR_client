@@ -35,7 +35,7 @@ gcloud run deploy "$SERVICE" \
   --timeout 300 \
   --cpu-boost \
   --add-cloudsql-instances "$SQL_INSTANCE" \
-  --set-env-vars "^|^NODE_ENV=production|JWT_SECRET=phr-demo-jwt-$(date +%s)|MYSQL_SOCKET_PATH=/cloudsql/${SQL_INSTANCE}|MYSQL_USER=fhirdb|MYSQL_PASSWORD=${DB_PASSWORD}|MYSQL_DATABASE=FHIR_Appointment_Medicine|DEMO_FHIR_PATIENT_ID=20830|GOOGLE_FHIR_PATIENT_ID=15121|FHIR_SERVER_URL=https://hapi.fhir.org/baseR4"
+  --set-env-vars "^|^NODE_ENV=production|JWT_SECRET=phr-demo-jwt-$(date +%s)|MYSQL_SOCKET_PATH=/cloudsql/${SQL_INSTANCE}|MYSQL_USER=fhirdb|MYSQL_PASSWORD=${DB_PASSWORD}|MYSQL_DATABASE=FHIR_Appointment_Medicine|DEMO_FHIR_PATIENT_ID=20830|GOOGLE_FHIR_PATIENT_ID=20400|FHIR_SERVER_URL=https://hapi.fhir.org/baseR4"
 
 URL="$(gcloud run services describe "$SERVICE" --region "$REGION" --format='value(status.url)')"
 gcloud run services update "$SERVICE" --region "$REGION" \

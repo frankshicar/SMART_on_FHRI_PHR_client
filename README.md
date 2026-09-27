@@ -12,7 +12,7 @@ Nuxt 3 病患端个人健康记录（PHR）原型：登入 → 查看 FHIR 处�
 | 模块 | 说明 |
 |------|------|
 | 登入 | Demo 帐密（`demo` / `demo1234`）或 Google OAuth |
-| 处方 | 从 hapi.fhir.org 读取 `MedicationRequest`（demo→Patient/20830，Google→Patient/15121） |
+| 处方 | 从 hapi.fhir.org 读取 `MedicationRequest`（demo→20830，Google→20400，各 2 笔以上） |
 | 预约 | 建立 / 查询 / 取消取药预约（MySQL） |
 | 导航 | 底部 Tab + 返回键 |
 

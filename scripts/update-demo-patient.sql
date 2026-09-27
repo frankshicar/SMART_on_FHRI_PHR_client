@@ -6,7 +6,7 @@ UPDATE users
 SET fhir_patient_id = '20830'
 WHERE username = 'demo';
 
--- Google 登录用户 → Patient/15121（新 Google 用户默认亦同）
+-- Google 登录用户 → Patient/20400（4 笔 active 处方；新 Google 用户默认亦同）
 UPDATE users
-SET fhir_patient_id = '15121'
+SET fhir_patient_id = '20400'
 WHERE google_sub IS NOT NULL;

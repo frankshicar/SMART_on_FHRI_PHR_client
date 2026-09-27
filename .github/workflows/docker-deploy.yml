@@ -118,7 +118,7 @@ jobs:
           ENV_VARS="${ENV_VARS}|MYSQL_PASSWORD=${{ secrets.GCP_MYSQL_PASSWORD }}"
           ENV_VARS="${ENV_VARS}|MYSQL_DATABASE=${GCP_MYSQL_DATABASE}"
           ENV_VARS="${ENV_VARS}|DEMO_FHIR_PATIENT_ID=20830"
-          ENV_VARS="${ENV_VARS}|GOOGLE_FHIR_PATIENT_ID=15121"
+          ENV_VARS="${ENV_VARS}|GOOGLE_FHIR_PATIENT_ID=20400"
           ENV_VARS="${ENV_VARS}|FHIR_SERVER_URL=https://hapi.fhir.org/baseR4"
           if [ -n "${{ secrets.GOOGLE_CLIENT_ID }}" ]; then
             ENV_VARS="${ENV_VARS}|GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"

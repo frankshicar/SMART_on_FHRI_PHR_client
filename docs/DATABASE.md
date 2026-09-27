@@ -81,7 +81,7 @@ CREATE TABLE users (
   username        VARCHAR(64)  NOT NULL UNIQUE,
   password_hash   VARCHAR(255) NOT NULL,
   display_name    VARCHAR(128) NOT NULL,
-  fhir_patient_id VARCHAR(128) NULL COMMENT 'FHIR Patient 資源 ID，demo 20830 / Google 15121',
+  fhir_patient_id VARCHAR(128) NULL COMMENT 'FHIR Patient 資源 ID，demo 20830 / Google 20400',
   fhir_server_url VARCHAR(512) NULL DEFAULT 'https://hapi.fhir.org/baseR4',
   created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -131,7 +131,7 @@ CREATE TABLE appointments (
 | username | VARCHAR(64) UK | 登入帳號 |
 | password_hash | VARCHAR(255) | bcrypt |
 | display_name | VARCHAR(128) | 顯示名稱 |
-| fhir_patient_id | VARCHAR(128) | demo→20830、Google 新用户→15121 |
+| fhir_patient_id | VARCHAR(128) | demo→20830、Google 新用户→20400 |
 | created_at | TIMESTAMP | 建立時間 |
 
 ### 目前 `Patients_Appointment`
