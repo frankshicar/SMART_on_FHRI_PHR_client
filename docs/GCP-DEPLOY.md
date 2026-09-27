@@ -61,23 +61,25 @@ Cloud SQL（fhirdb / MySQL 8.4）
 
 ---
 
-## 第二步：让 Cloud Run 能拉 GHCR 镜像
+## 第二步：构建镜像（推荐在 GCP 上 build，避免 GHCR 私有拉取失败）
 
-GitHub Actions 已推送镜像到：
+**若 Cloud Run 报 `failed to listen on PORT=3000`，常见原因是 GHCR 私有镜像拉不到或启动脚本超时。**
+
+在 **Cloud Shell** 执行（把密码换成你的 fhirdb 密码）：
+
+```bash
+git clone https://github.com/frankshicar/SMART_on_FHRI_PHR_client.git
+cd SMART_on_FHRI_PHR_client
+bash scripts/gcp-cloud-shell-deploy.sh '你的fhirdb密码'
+```
+
+脚本会：Cloud Build 打镜像 → 推 Artifact Registry → 部署 Cloud Run → 绑定 Cloud SQL → 设置 `APP_URL`。
+
+### 备选：GHCR 镜像（仅当 Package 为 public 时）
 
 ```
 ghcr.io/frankshicar/smart_on_fhri_phr_client:latest
 ```
-
-### 若仓库 / Package 是公开的
-
-Cloud Run 可直接拉，跳到第三步。
-
-### 若是私有的
-
-1. GitHub → Settings → Developer settings → PAT（`read:packages`）
-2. GCP **Secret Manager** 建立 secret `ghcr-token`
-3. Cloud Run 部署时指定 registry 认证（见 gcloud 命令）
 
 ---
 
