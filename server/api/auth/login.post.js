@@ -2,6 +2,7 @@ import { defineEventHandler, readBody, setCookie, createError } from 'h3';
 import bcrypt from 'bcryptjs';
 import { getDbPool } from '../../utils/db.js';
 import { signToken } from '../../utils/auth.js';
+import { formatDbError } from '../../utils/db-error.js';
 
 export default defineEventHandler(async (event) => {
   const { username, password } = await readBody(event);
@@ -40,10 +41,8 @@ export default defineEventHandler(async (event) => {
       throw error;
     }
     throw createError({
-      statusCode: error.code === 'ECONNREFUSED' ? 503 : 500,
-      statusMessage: error.code === 'ECONNREFUSED'
-        ? 'MySQL 未啟動，請執行 docker compose up -d'
-        : error.message,
+      statusCode: error.code === 'ECONNREFUSED' || error.code === 'ENOENT' ? 503 : 500,
+      statusMessage: formatDbError(error),
     });
   }
 });
