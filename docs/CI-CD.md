@@ -109,20 +109,21 @@
 在 [Cloud Shell](https://shell.cloud.google.com) 执行：
 
 ```bash
-git clone https://github.com/frankshicar/SMART_on_FHRI_PHR_client.git
-cd SMART_on_FHRI_PHR_client
-bash scripts/gcp-setup-github-actions-sa.sh
+cd ~/SMART_on_FHRI_PHR_client
+git pull
+bash scripts/gcp-setup-github-actions-wif.sh
 ```
 
-脚本会：启用 API、建立 `github-actions-deploy` 服务账号、授予 Cloud Run 运行时连 Cloud SQL 的权限、输出 `github-actions-key.json`。
+脚本会：启用 API、建立 `github-actions-deploy` 服务账号、设置 **Workload Identity**（GitHub 免 JSON 密钥登录 GCP）、授予 Cloud Run 连 Cloud SQL 的权限。
 
-复制输出的 JSON 全文，稍后要贴到 GitHub Secret `GCP_SA_KEY`。
+若报错 `Key creation is not allowed`，代表 GCP 禁止服务账号 JSON 密钥——**请用上面的 WIF 脚本**，不要用旧的 `gcp-setup-github-actions-sa.sh`。
+
+脚本结束会输出两个值，贴到 GitHub **Variables**（见下一步）。
 
 ### 2. GitHub Secrets（Settings → Secrets and variables → Actions）
 
 | Name | 说明 |
 |------|------|
-| `GCP_SA_KEY` | 上一步 `github-actions-key.json` 的完整 JSON |
 | `GCP_MYSQL_PASSWORD` | Cloud SQL 用户 `fhirdb` 的密码 |
 | `GCP_JWT_SECRET` | 随机长字串（生产环境固定，不要每次改） |
 | `GOOGLE_CLIENT_ID` | （可选）Google OAuth |
@@ -133,6 +134,8 @@ bash scripts/gcp-setup-github-actions-sa.sh
 | Name | 示例值 |
 |------|--------|
 | `ENABLE_GCP_DEPLOY` | `true` |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | `projects/63128202622/locations/global/workloadIdentityPools/github/providers/github`（以 WIF 脚本输出为准） |
+| `GCP_SERVICE_ACCOUNT` | `github-actions-deploy@project-426dfc7e-533b-40af-a62.iam.gserviceaccount.com` |
 | `GCP_PROJECT_ID` | `project-426dfc7e-533b-40af-a62` |
 | `GCP_REGION` | `asia-east1` |
 | `GCP_SERVICE` | `smart-phr-client` |
