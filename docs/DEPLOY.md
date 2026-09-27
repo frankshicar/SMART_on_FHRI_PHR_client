@@ -177,7 +177,7 @@ Google OAuth **无法**在此模式使用（需 HTTPS + 固定域名）。
 | `502 Bad Gateway` | `docker compose logs app` 看 Nuxt 是否启动 |
 | 登入 503 | MySQL 未就绪，等 30s 或看 `docker compose logs mysql` |
 | Google redirect_uri_mismatch | `APP_URL` 与 Google Console 必须完全一致 |
-| 处方空白 | hapi.fhir.org 不可用或 Patient 无 active MedicationRequest（Demo 默认 15121） |
+| 处方空白 | hapi.fhir.org 不可用或 Patient 无 active MedicationRequest（demo→20830，Google→15121） |
 
 ---
 

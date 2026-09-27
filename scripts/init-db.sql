@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(64) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NULL,
   display_name VARCHAR(128) NOT NULL,
-  fhir_patient_id VARCHAR(128) NULL COMMENT 'FHIR Patient ID e.g. 15121',
+  fhir_patient_id VARCHAR(128) NULL COMMENT 'FHIR Patient ID e.g. 20830 (demo)',
   google_sub VARCHAR(128) NULL UNIQUE COMMENT 'Google OAuth sub',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -32,5 +32,5 @@ VALUES (
   'demo',
   '$2b$10$L1VIjwZdGYma9OhKepgn4ePrxGOrlX4JGBsoa1P.poy0/8r/oBgve',
   'Demo',
-  '15121'
+  '20830'
 ) ON DUPLICATE KEY UPDATE fhir_patient_id = VALUES(fhir_patient_id);

@@ -105,7 +105,8 @@ MYSQL_SOCKET_PATH=/cloudsql/你的PROJECT_ID:us-central1:fhirdb,\
 MYSQL_USER=phr_app,\
 MYSQL_PASSWORD=你的密码,\
 MYSQL_DATABASE=FHIR_Appointment_Medicine,\
-DEMO_FHIR_PATIENT_ID=15121,\
+DEMO_FHIR_PATIENT_ID=20830,\
+GOOGLE_FHIR_PATIENT_ID=15121,\
 FHIR_SERVER_URL=https://hapi.fhir.org/baseR4"
 ```
 

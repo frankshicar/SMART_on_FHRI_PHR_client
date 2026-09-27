@@ -3,7 +3,7 @@ import { getGoogleOAuthClient } from '../../../utils/google-oauth.js';
 import { getDbPool } from '../../../utils/db.js';
 import { signToken } from '../../../utils/auth.js';
 
-const DEFAULT_FHIR_PATIENT_ID = process.env.DEMO_FHIR_PATIENT_ID || '15121';
+const GOOGLE_FHIR_PATIENT_ID = process.env.GOOGLE_FHIR_PATIENT_ID || '15121';
 
 async function findOrCreateGoogleUser(profile) {
   const pool = getDbPool();
@@ -27,7 +27,7 @@ async function findOrCreateGoogleUser(profile) {
   const [result] = await pool.query(
     `INSERT INTO users (username, password_hash, display_name, google_sub, fhir_patient_id)
      VALUES (?, NULL, ?, ?, ?)`,
-    [email, displayName, googleSub, DEFAULT_FHIR_PATIENT_ID]
+    [email, displayName, googleSub, GOOGLE_FHIR_PATIENT_ID]
   );
 
   return {

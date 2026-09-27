@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise';
 import { getMysqlConfig } from './db-config.mjs';
 
-const DEMO_FHIR_PATIENT_ID = process.env.DEMO_FHIR_PATIENT_ID || '15121';
+const DEMO_FHIR_PATIENT_ID = process.env.DEMO_FHIR_PATIENT_ID || '20830';
 
 const pool = mysql.createPool(getMysqlConfig());
 
