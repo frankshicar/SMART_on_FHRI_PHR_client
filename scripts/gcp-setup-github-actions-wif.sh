@@ -18,6 +18,15 @@ gcloud services enable \
   iamcredentials.googleapis.com \
   sts.googleapis.com
 
+REGION="${GCP_REGION:-asia-east1}"
+gcloud artifacts repositories describe smart-phr \
+  --location="$REGION" \
+  --project="$PROJECT_ID" >/dev/null 2>&1 \
+  || gcloud artifacts repositories create smart-phr \
+    --repository-format=docker \
+    --location="$REGION" \
+    --project="$PROJECT_ID"
+
 if ! gcloud iam service-accounts describe "$SA_EMAIL" >/dev/null 2>&1; then
   gcloud iam service-accounts create "$SA_NAME" \
     --display-name="GitHub Actions Cloud Run deploy"
