@@ -112,6 +112,7 @@ Dockerfile
 | [docs/DEPLOY.md](./docs/DEPLOY.md) | VPS / Docker 部署 |
 | [docs/CI-CD.md](./docs/CI-CD.md) | GitHub Actions 说明 |
 | [docs/GITHUB-PAGES.md](./docs/GITHUB-PAGES.md) | 为何不用 github.io |
+| [docs/GCP-DEPLOY.md](./docs/GCP-DEPLOY.md) | Cloud Run + Cloud SQL + GHCR |
 
 ---
 

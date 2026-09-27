@@ -1,12 +1,7 @@
 import mysql from 'mysql2/promise';
+import { getMysqlConfig } from './db-config.mjs';
 
-const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST || '127.0.0.1',
-  user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || 'phr_dev_password',
-  database: process.env.MYSQL_DATABASE || 'FHIR_Appointment_Medicine',
-  charset: 'utf8mb4',
-});
+const pool = mysql.createPool(getMysqlConfig());
 
 try {
   await pool.query(`
