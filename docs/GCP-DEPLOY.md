@@ -105,7 +105,7 @@ MYSQL_SOCKET_PATH=/cloudsql/你的PROJECT_ID:us-central1:fhirdb,\
 MYSQL_USER=phr_app,\
 MYSQL_PASSWORD=你的密码,\
 MYSQL_DATABASE=FHIR_Appointment_Medicine,\
-DEMO_FHIR_PATIENT_ID=3935,\
+DEMO_FHIR_PATIENT_ID=15121,\
 FHIR_SERVER_URL=https://hapi.fhir.org/baseR4"
 ```
 
@@ -121,18 +121,72 @@ https://smart-phr-client-xxxxx-de.a.run.app
 
 ## 第四步：Google OAuth（若要用）
 
-Google Cloud Console → OAuth 客户端 → 新增 redirect URI：
+### 4.1 先取得 Cloud Run 网址
 
-```
-https://smart-phr-client-xxxxx-de.a.run.app/api/auth/google/callback
+Cloud Shell：
+
+```bash
+gcloud run services describe smart-phr-client \
+  --region asia-east1 \
+  --format='value(status.url)'
 ```
 
-Cloud Run 环境变量加上：
+记下输出，例如：`https://smart-phr-client-xxxxx-de.a.run.app`（以下称 `{APP_URL}`）。
 
-```
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-```
+GitHub Actions 部署后会自动设 `APP_URL`；若 OAuth 报错，确认 Cloud Run 环境变量里 `APP_URL` 与上面网址 **完全一致**（含 `https://`，末尾不要 `/`）。
+
+### 4.2 到 Google Cloud Console 改 OAuth 客户端
+
+1. 打开 [API 和服务 → 凭据](https://console.cloud.google.com/apis/credentials)
+2. 确认项目是 `project-426dfc7e-533b-40af-a62`
+3. 点你的 **OAuth 2.0 客户端 ID**（类型通常是「网页应用」）
+4. 在 **已授权的 JavaScript 来源** 新增：
+
+   ```
+   {APP_URL}
+   ```
+
+   例：`https://smart-phr-client-xxxxx-de.a.run.app`
+
+5. 在 **已授权的重定向 URI** 新增：
+
+   ```
+   {APP_URL}/api/auth/google/callback
+   ```
+
+   例：`https://smart-phr-client-xxxxx-de.a.run.app/api/auth/google/callback`
+
+6. **保存**
+
+本地开发若也要测，额外保留：
+
+| 用途 | JavaScript 来源 | 重定向 URI |
+|------|-----------------|------------|
+| 本机 | `http://localhost:3000` | `http://localhost:3000/api/auth/google/callback` |
+| Cloud Run | `{APP_URL}` | `{APP_URL}/api/auth/google/callback` |
+
+### 4.3 把 Client ID / Secret 设进 Cloud Run
+
+**方式 A（CI/CD，推荐）：** GitHub → Settings → Secrets → 新增：
+
+| Secret | 值 |
+|--------|-----|
+| `GOOGLE_CLIENT_ID` | OAuth 客户端 ID |
+| `GOOGLE_CLIENT_SECRET` | OAuth 客户端密钥 |
+
+再 push 到 `main` 或 Re-run workflow，部署时会写入 Cloud Run。
+
+**方式 B（手动）：** Cloud Console → Cloud Run → `smart-phr-client` → 修订版本 → 变量与密钥 → 新增 `GOOGLE_CLIENT_ID`、`GOOGLE_CLIENT_SECRET`。
+
+### 4.4 常见错误
+
+| 错误 | 原因 | 处理 |
+|------|------|------|
+| `redirect_uri_mismatch` | Google Console 的重定向 URI 与 App 不一致 | 必须完全是 `{APP_URL}/api/auth/google/callback` |
+| `google_not_configured` | 未设 Client ID/Secret | 完成 4.3 |
+| 登录后跳错域名 | `APP_URL` 还是 localhost | 更新 Cloud Run 的 `APP_URL` 为 Cloud Run 网址 |
+
+App 使用的回调路径固定为 **`/api/auth/google/callback`**（见 `server/utils/google-oauth.js`）。
 
 ---
 

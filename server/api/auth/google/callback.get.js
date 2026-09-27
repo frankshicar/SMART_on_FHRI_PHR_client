@@ -3,7 +3,7 @@ import { getGoogleOAuthClient } from '../../../utils/google-oauth.js';
 import { getDbPool } from '../../../utils/db.js';
 import { signToken } from '../../../utils/auth.js';
 
-const DEFAULT_FHIR_PATIENT_ID = process.env.DEMO_FHIR_PATIENT_ID || '3935';
+const DEFAULT_FHIR_PATIENT_ID = process.env.DEMO_FHIR_PATIENT_ID || '15121';
 
 async function findOrCreateGoogleUser(profile) {
   const pool = getDbPool();
