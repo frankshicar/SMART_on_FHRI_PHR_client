@@ -179,10 +179,12 @@ Demo：`demo` / `demo1234`
 
 | 问题 | 处理 |
 |------|------|
-| Cloud Run 502 | 看 Logs → 常是 DB 连不上或 migrate 失败 |
-| db error | 检查 `MYSQL_SOCKET_PATH` 与 `--add-cloudsql-instances` |
+| **failed to listen on PORT=3000** | 旧镜像启动时会先等 MySQL 60s。新版已自动跳过（检测 `K_SERVICE`）。或 Console 设容器指令 `node`、引数 `.output/server/index.mjs` |
+| Cloud Run 502 | 看 Logs → 常是 DB 连不上 |
+| db error | 检查 `MYSQL_SOCKET_PATH` 与 Cloud SQL 连接 |
 | 表不存在 | 在 Cloud SQL Studio 跑 `init-db.sql` |
-| 镜像拉不到 | GHCR 改 public 或设 registry secret |
+| 镜像拉不到 | GHCR 改 public 或 Cloud Shell `gcloud builds submit` |
+| 启动超时 | 容器 → 启动探针 → 延长「初始延迟」至 60s |
 
 ---
 
